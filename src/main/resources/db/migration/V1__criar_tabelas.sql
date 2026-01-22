@@ -1,0 +1,4 @@
+CREATE TABLE artista (
+    id BIGSERIAL PRIMARY KEY,
+    nome VARCHAR(200) NOT NULL
+);
