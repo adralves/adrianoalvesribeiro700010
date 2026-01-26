@@ -1,5 +1,7 @@
 package com.adrianoribeiro.artistas_api.model;
 
+import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.HashSet;
@@ -15,12 +17,12 @@ public class Artista {
     @Column(nullable = false)
     private String nome;
 
-    @ManyToMany
-    @JoinTable(
-            name = "artista_album",
-            joinColumns = @JoinColumn(name = "artista_id"),
-            inverseJoinColumns = @JoinColumn(name = "album_id")
-    )
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private TipoArtista tipo;
+
+    @ManyToMany(mappedBy = "artistas")
+    @JsonIgnore
     private Set<Album> albuns = new HashSet<>();
 
     public Artista() {
@@ -40,6 +42,14 @@ public class Artista {
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public TipoArtista getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(TipoArtista tipo) {
+        this.tipo = tipo;
     }
 
     public Set<Album> getAlbuns() {

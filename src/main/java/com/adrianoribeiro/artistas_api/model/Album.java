@@ -17,7 +17,12 @@ public class Album {
     @Column(nullable = false)
     private String nome;
 
-    @ManyToMany(mappedBy = "albuns")
+    @ManyToMany
+    @JoinTable(
+            name = "artista_album",
+            joinColumns = @JoinColumn(name = "album_id"),
+            inverseJoinColumns = @JoinColumn(name = "artista_id")
+    )
     @JsonIgnore
     private Set<Artista> artistas = new HashSet<>();
 

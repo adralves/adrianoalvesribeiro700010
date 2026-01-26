@@ -10,4 +10,5 @@ import org.springframework.data.domain.Pageable;
 public interface ArtistaRepository extends JpaRepository<Artista, Long> {
 
     Page<Artista> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
+
 }
