@@ -3,7 +3,9 @@ package com.adrianoribeiro.artistas_api.model;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -25,6 +27,13 @@ public class Album {
     )
     @JsonIgnore
     private Set<Artista> artistas = new HashSet<>();
+
+    @OneToMany(
+            mappedBy = "album",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<AlbumImagem> imagens = new ArrayList<>();
 
     public Album() {
     }
@@ -51,5 +60,13 @@ public class Album {
 
     public void setArtistas(Set<Artista> artistas) {
         this.artistas = artistas;
+    }
+
+    public List<AlbumImagem> getImagens() {
+        return imagens;
+    }
+
+    public void setImagens(List<AlbumImagem> imagens) {
+        this.imagens = imagens;
     }
 }

@@ -2,38 +2,41 @@
 
 API REST de **Artistas** e **Álbuns**, com relacionamento **N:N** (tabela de junção `artista_album`), usando **Spring Boot + JPA** e **PostgreSQL**. O schema do banco é criado/validado via **Flyway**.
 
+Este projeto utiliza Docker + Docker Compose para subir o banco de dados PostgreSQL e o MinIO de forma padronizada e reprodutível.
+
+As imagens possuem versões fixas para garantir que o ambiente seja sempre o mesmo, independentemente da máquina.
+
 ## Requisitos
 
 - **Java 17**
-- **Docker Desktop** (recomendado para subir o PostgreSQL)
+- **Docker** 
+- **Docker Compose (ou Docker Desktop)**
 - Portas livres:
   - **5432** (PostgreSQL)
   - **8080** (API)
 
-## Como rodar (recomendado)
+## Como rodar 
 
-1) Suba o PostgreSQL:
+1) Para garantir que tudo suba do zero:
 
 ```bash
-docker compose up -d
+docker compose down -v --remove-orphans
 ```
 
-2) Suba a API (Windows / PowerShell):
+2) Subir os serviços:
 
 ```powershell
-.\mvnw.cmd spring-boot:run
+docker compose up -d
 ```
 
 A API sobe em `http://localhost:8080`.
 
-## Como rodar via JAR (java -jar)
-
-> No `pom.xml` o boot jar é gerado como `*-exec.jar` (evita falhas de rename no Windows).
+3) Verificar se está rodando
 
 ```powershell
-.\mvnw.cmd -DskipTests package
-java -jar .\target\artistas-api-0.0.1-SNAPSHOT-exec.jar
+docker ps
 ```
+
 
 ## Configuração do banco
 Usuario: postgres  
@@ -48,28 +51,24 @@ Em `src/main/resources/application.properties`:
 
 As migrations ficam em `src/main/resources/db/migration`.
 
+MinIO Console Web
+
+http://localhost:9001
+
+Login:  
+Usuário: minioadmin  
+Senha: minioadmin
+
+---
+## ------ATENÇÃO PRECISA REVISAR ESSA PARTE DA DOCUMENTACAO--------- 
+
 ## Endpoints
 
 - **Criar artista**: `POST /api/v1/artistas`
 - **Listar artistas (paginado + filtro por nome)**: `GET /api/v1/artistas?pagina=0&tamanho=10&ordem=asc&nome=ana`
 - **Criar álbum para um artista**: `POST /api/v1/albuns/artista/{artistaId}`
 - **Listar álbuns**: `GET /api/v1/albuns`
-- **Healthcheck**: `GET /actuator/health`
 
-### Exemplos rápidos (PowerShell)
-
-```powershell
-# Criar artista
-Invoke-RestMethod -Method Post -Uri "http://localhost:8080/api/v1/artistas" `
-  -ContentType "application/json" -Body '{"nome":"Ana"}'
-
-# Listar artistas
-Invoke-RestMethod -Uri "http://localhost:8080/api/v1/artistas?pagina=0&tamanho=10&ordem=asc"
-
-# Criar álbum para artista 1
-Invoke-RestMethod -Method Post -Uri "http://localhost:8080/api/v1/albuns/artista/1" `
-  -ContentType "application/json" -Body '{"nome":"Meu Álbum"}'
-```
 
 ## Segurança
 
