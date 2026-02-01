@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.stereotype.Service;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.nio.charset.StandardCharsets;
 import java.security.Key;
@@ -13,19 +14,21 @@ import java.util.Date;
 @Service
 public class JwtService {
 
-    private static final String SECRET_KEY =
-            "chave-super-secreta-com-32-bytes-no-minimo";
+    @Value("${app.jwt.secret}")
+    private String secretKey;
 
-    private static final long ACCESS_EXPIRATION = 1000 * 60 * 5; //token expira em 5 minutos
-    private static final long REFRESH_EXPIRATION = 1000 * 60 * 30; //refresh token expira em 30 minutos
+    @Value("${app.jwt.access-expiration}")
+    private long accessExpiration;
 
+    @Value("${app.jwt.refresh-expiration}")
+    private long refreshExpiration;
 
     public String generateAccessToken(String username) {
-        return buildToken(username, "ACCESS", ACCESS_EXPIRATION);
+        return buildToken(username, "ACCESS", accessExpiration);
     }
 
     public String generateRefreshToken(String username) {
-        return buildToken(username, "REFRESH", REFRESH_EXPIRATION);
+        return buildToken(username, "REFRESH", refreshExpiration);
     }
 
     private String buildToken(String username, String type, long expiration) {
@@ -73,7 +76,7 @@ public class JwtService {
 
     private Key getKey() {
         return Keys.hmacShaKeyFor(
-                SECRET_KEY.getBytes(StandardCharsets.UTF_8)
+                secretKey.getBytes(StandardCharsets.UTF_8)
         );
     }
 
