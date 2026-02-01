@@ -19,7 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/v1/albuns")
+@RequestMapping("/api/v1/album")
 @Tag(name = "Álbuns", description = "Endpoints para gerenciamento de álbuns")
 @SecurityRequirement(name = "bearerAuth")
 public class AlbumController {

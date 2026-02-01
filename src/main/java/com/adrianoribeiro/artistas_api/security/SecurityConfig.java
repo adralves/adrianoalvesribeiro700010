@@ -41,26 +41,45 @@ public class SecurityConfig {
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(auth -> auth
-                            .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                            .requestMatchers(
-                                    "/api/v1/auth/login",
-                                    "/api/v1/auth/refresh",
-                                    "/api/v2/auth/login",
-                                    "/api/v2/auth/refresh",
-                                    "/actuator/health",
-                                    "/actuator/health/**",
-                                    "/v3/api-docs/**",
-                                    "/swagger-ui/**",
-                                    "/swagger-ui.html"
-                            ).permitAll()
 
+                        //Preflight
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+
+                        //WebSocket
+                        .requestMatchers(
+                                "/ws/**",
+                                "/topic/**",
+                                "/app/**"
+                        ).permitAll()
+
+                        //Auth / Docs / Health
+                        .requestMatchers(
+                                "/api/v1/auth/login",
+                                "/api/v1/auth/refresh",
+                                "/api/v2/auth/login",
+                                "/api/v2/auth/refresh",
+                                "/actuator/health",
+                                "/actuator/health/**",
+                                "/v3/api-docs/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html"
+                        ).permitAll()
+
+                        //REST protegido
                         .anyRequest().authenticated()
                 )
-                // Primeiro valida o JWT para sabermos quem é o usuário
-                .addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class)
-                // Aplica o Rate Limit (agora ele saberá o username se estiver logado)
-                .addFilterAfter(rateLimitFilter(), JwtAuthenticationFilter.class);
 
+                // JWT
+                .addFilterBefore(
+                        jwtAuthenticationFilter,
+                        UsernamePasswordAuthenticationFilter.class
+                )
+
+                //Rate limit
+                .addFilterAfter(
+                        rateLimitFilter(),
+                        JwtAuthenticationFilter.class
+                );
 
         return http.build();
     }
@@ -69,10 +88,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(
-                "http://localhost:3000",
-                "http://localhost:4200"
-        ));
+//        config.setAllowedOrigins(List.of(
+//                "http://localhost:3000",
+//                "http://localhost:4200"
+//        ));
+        config.setAllowedOriginPatterns(List.of("*"));
+
         config.setAllowedMethods(List.of(
                 "GET", "POST", "PUT", "DELETE", "OPTIONS"
         ));

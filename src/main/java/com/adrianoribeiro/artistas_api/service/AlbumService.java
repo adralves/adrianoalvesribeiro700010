@@ -1,28 +1,38 @@
 package com.adrianoribeiro.artistas_api.service;
 
+import com.adrianoribeiro.artistas_api.dto.AlbumNotificacaoDTO;
 import com.adrianoribeiro.artistas_api.model.Album;
 import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
 import com.adrianoribeiro.artistas_api.repository.AlbumRepository;
 import com.adrianoribeiro.artistas_api.repository.ArtistaRepository;
 import com.adrianoribeiro.artistas_api.dto.AtualizarAlbumDTO;
+import com.adrianoribeiro.artistas_api.websocket.AlbumNotificationService;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 public class AlbumService {
 
     private final AlbumRepository albumRepository;
     private final ArtistaRepository artistaRepository;
+    private final AlbumNotificationService notificationService;
 
     public AlbumService(AlbumRepository albumRepository,
-                        ArtistaRepository artistaRepository) {
+                        ArtistaRepository artistaRepository, AlbumNotificationService notificationService) {
         this.albumRepository = albumRepository;
         this.artistaRepository = artistaRepository;
+        this.notificationService = notificationService;
     }
 
     public Album criarAlbum(Album album) {
-        return albumRepository.save(album);
+        Album salvo = albumRepository.save(album);
+
+        // Notifica o front em tempo real quando criar um novo album
+        notificationService.notificarNovoAlbum(salvo);
+        return salvo;
     }
 
     public Page<Album> listarAlbuns(String nome, Pageable pageable) {
