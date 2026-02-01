@@ -33,6 +33,7 @@ public class Album {
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
+    @JsonIgnore
     private List<AlbumImagem> imagens = new ArrayList<>();
 
     public Album() {
