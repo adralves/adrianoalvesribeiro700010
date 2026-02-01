@@ -1,5 +1,6 @@
 package com.adrianoribeiro.artistas_api.security;
 
+import com.adrianoribeiro.artistas_api.security.ratelimit.RateLimitFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
@@ -23,6 +24,11 @@ public class SecurityConfig {
 
     public SecurityConfig(JwtAuthenticationFilter jwtAuthenticationFilter) {
         this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+    }
+
+    @Bean
+    public RateLimitFilter rateLimitFilter() {
+        return new RateLimitFilter();
     }
 
     @Bean
@@ -50,10 +56,11 @@ public class SecurityConfig {
 
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(
-                        jwtAuthenticationFilter,
-                        UsernamePasswordAuthenticationFilter.class
-                );
+                // Primeiro valida o JWT para sabermos quem é o usuário
+                .addFilterBefore(jwtAuthenticationFilter,UsernamePasswordAuthenticationFilter.class)
+                // Aplica o Rate Limit (agora ele saberá o username se estiver logado)
+                .addFilterAfter(rateLimitFilter(), JwtAuthenticationFilter.class);
+
 
         return http.build();
     }

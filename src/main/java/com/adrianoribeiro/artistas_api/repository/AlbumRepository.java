@@ -4,6 +4,7 @@ import com.adrianoribeiro.artistas_api.model.Album;
 import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,6 +14,8 @@ import java.util.List;
 
 @Repository
 public interface AlbumRepository extends JpaRepository<Album, Long> {
+
+    @EntityGraph(attributePaths = "imagens")
     Page<Album> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
     @Query("""
@@ -39,5 +42,8 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
 OR LOWER(ar.nome) LIKE LOWER(CONCAT('%', CAST(:artista AS string), '%')))
     """)
     Page<Album> listaAlbunsPorArtista(@Param("artista") String artista, Pageable pageable);
+
+    @EntityGraph(attributePaths = "imagens")
+    Page<Album> findAll(Pageable pageable);
 
 }
