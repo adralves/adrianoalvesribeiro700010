@@ -11,10 +11,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -80,10 +82,19 @@ public class AlbumController {
             @ApiResponse(responseCode = "200", description = "Lista de álbuns retornada com sucesso")
     })
     @GetMapping("/tipo-artista")
-    public Page<Album> listarAlbunsPorTipoArtista(@RequestParam TipoArtista tipo,
-                                                  @ParameterObject Pageable pageable) {
-        return albumService.listarPorTipoArtista(tipo, pageable);
+    public Page<Album> listarPorTipoArtista(TipoArtista tipo, Pageable pageable) {
+
+        Page<Album> page = albumService.listarPorTipoArtista(tipo, pageable);
+
+        if (page.isEmpty()) {
+            throw new EntityNotFoundException(
+                    "Não existem álbuns cadastrados para o tipo de artista informado"
+            );
+        }
+
+        return page;
     }
+
 
     @Operation(
             summary = "Listar álbum pelo nome do artista",
