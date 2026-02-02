@@ -82,7 +82,8 @@ public class AlbumController {
             @ApiResponse(responseCode = "200", description = "Lista de álbuns retornada com sucesso")
     })
     @GetMapping("/tipo-artista")
-    public Page<Album> listarPorTipoArtista(TipoArtista tipo, Pageable pageable) {
+    public Page<Album> listarPorTipoArtista(@RequestParam TipoArtista tipo,
+                                            @ParameterObject Pageable pageable) {
 
         Page<Album> page = albumService.listarPorTipoArtista(tipo, pageable);
 
@@ -97,8 +98,11 @@ public class AlbumController {
 
 
     @Operation(
-            summary = "Listar álbum pelo nome do artista",
-            description = "Lista álbuns filtrando pelo nome do artista"
+            summary = "Consulta álbum pelo nome do artista",
+            description =  """
+                Permite consultar álbuns filtrando pelo nome do artista (parcial ou completo),
+                com ordenação alfabética ascendente ou descendente.
+                """
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista de álbuns retornada com sucesso")
@@ -106,6 +110,18 @@ public class AlbumController {
     @GetMapping("/album-por-artista")
     public Page<Album> listaAlbunsPorArtista(@RequestParam(required = false) String artista,
                                              @ParameterObject Pageable pageable) {
-        return albumService.listaAlbunsPorArtista(artista, pageable);
+        //return albumService.listaAlbunsPorArtista(artista, pageable);
+        Page<Album> page = albumService.listaAlbunsPorArtista(artista, pageable);
+
+        if (page.isEmpty()) {
+            String mensagem = (artista == null || artista.isBlank())
+                    ? "Não existem álbuns cadastrados para a consulta realizada"
+                    : "Não foram encontrados álbuns para o artista informado";
+
+            throw new EntityNotFoundException(mensagem);
+        }
+        return page;
+
+
     }
 }
