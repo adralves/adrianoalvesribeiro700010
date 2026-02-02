@@ -4,6 +4,7 @@ import com.adrianoribeiro.artistas_api.model.Album;
 import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
 import com.adrianoribeiro.artistas_api.service.AlbumService;
 import com.adrianoribeiro.artistas_api.service.JwtService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.validation.ValidationAutoConfiguration;
@@ -15,10 +16,11 @@ import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import java.util.List;
 
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -184,7 +186,7 @@ class AlbumControllerTest {
     @Test
     void deveRetornar404AoAtualizarAlbumInexistente() throws Exception {
         when(albumService.atualizarAlbum(eq(999L), any()))
-                .thenThrow(new RuntimeException("Álbum não encontrado"));
+                .thenThrow(new EntityNotFoundException("Álbum não encontrado"));
 
         mockMvc.perform(put("/api/v1/album/{id}", 999L)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -209,4 +211,52 @@ class AlbumControllerTest {
                         .param("size", "10"))
                 .andExpect(status().isBadRequest());
     }
+
+    @Test
+    void deveBuscarAlbumPorIdComSucesso() throws Exception {
+
+        Album album = new Album();
+        album.setId(1L);
+        album.setNome("Horizontes");
+
+        when(albumService.buscarPorId(1L)).thenReturn(album);
+
+        mockMvc.perform(get("/api/v1/album/{id}", 1L))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.nome").value("Horizontes"));
+    }
+
+    @Test
+    void deveRetornar404AoBuscarAlbumInexistente() throws Exception {
+
+        when(albumService.buscarPorId(99L))
+                .thenThrow(new EntityNotFoundException("Álbum não encontrado"));
+
+        mockMvc.perform(get("/api/v1/album/{id}", 99L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message").value("Álbum não encontrado"));
+    }
+
+    @Test
+    void deveExcluirAlbumComSucesso() throws Exception {
+
+        doNothing().when(albumService).excluir(1L);
+
+        mockMvc.perform(delete("/api/v1/album/{id}", 1L))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void deveRetornar404AoExcluirAlbumInexistente() throws Exception {
+
+        doThrow(new EntityNotFoundException("Álbum não encontrado para exclusão"))
+                .when(albumService).excluir(99L);
+
+        mockMvc.perform(delete("/api/v1/album/{id}", 99L))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.message")
+                        .value("Álbum não encontrado para exclusão"));
+    }
+
 }

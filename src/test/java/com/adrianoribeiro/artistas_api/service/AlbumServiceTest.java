@@ -6,6 +6,7 @@ import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
 import com.adrianoribeiro.artistas_api.repository.AlbumRepository;
 import com.adrianoribeiro.artistas_api.repository.ArtistaRepository;
 import com.adrianoribeiro.artistas_api.websocket.AlbumNotificationService;
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -28,9 +29,6 @@ class AlbumServiceTest {
 
     @Mock
     private AlbumRepository albumRepository;
-
-    @Mock
-    private ArtistaRepository artistaRepository;
 
     @Mock
     private AlbumNotificationService notificationService;
@@ -154,4 +152,73 @@ class AlbumServiceTest {
 
         verify(albumRepository, times(1)).listaAlbunsPorArtista(nomeBusca, pageable);
     }
+
+    @Test
+    void deveBuscarAlbumPorIdComSucesso() {
+
+        Album album = new Album();
+        album.setId(1L);
+        album.setNome("Horizontes");
+
+        when(albumRepository.findById(1L))
+                .thenReturn(Optional.of(album));
+
+        Album resultado = albumService.buscarPorId(1L);
+
+        assertNotNull(resultado);
+        assertEquals(1L, resultado.getId());
+        assertEquals("Horizontes", resultado.getNome());
+    }
+
+    @Test
+    void deveLancarExcecaoAoBuscarAlbumInexistente() {
+
+        when(albumRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> albumService.buscarPorId(99L)
+        );
+
+        assertEquals(
+                "Álbum não encontrado para o ID informado",
+                exception.getMessage()
+        );
+    }
+
+    @Test
+    void deveExcluirAlbumComSucesso() {
+
+        Album album = new Album();
+        album.setId(1L);
+
+        when(albumRepository.findById(1L))
+                .thenReturn(Optional.of(album));
+
+        albumService.excluir(1L);
+
+        verify(albumRepository).delete(album);
+    }
+
+    @Test
+    void deveLancarExcecaoAoExcluirAlbumInexistente() {
+
+        when(albumRepository.findById(99L))
+                .thenReturn(Optional.empty());
+
+        EntityNotFoundException exception = assertThrows(
+                EntityNotFoundException.class,
+                () -> albumService.excluir(99L)
+        );
+
+        assertEquals(
+                "Álbum não encontrado para exclusão",
+                exception.getMessage()
+        );
+
+        verify(albumRepository, never()).delete(any());
+    }
+
+
 }
