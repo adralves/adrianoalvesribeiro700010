@@ -7,6 +7,7 @@ import com.adrianoribeiro.artistas_api.repository.AlbumRepository;
 import com.adrianoribeiro.artistas_api.repository.ArtistaRepository;
 import com.adrianoribeiro.artistas_api.dto.AtualizarAlbumDTO;
 import com.adrianoribeiro.artistas_api.websocket.AlbumNotificationService;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -59,4 +60,20 @@ public class AlbumService {
         return albumRepository.listaAlbunsPorArtista(artista, pageable);
     }
 
+    public Album buscarPorId(Long id) {
+        return albumRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Álbum não encontrado para o ID informado"
+                ));
+    }
+
+    public void excluir(Long id) {
+
+        Album album = albumRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Álbum não encontrado para exclusão"
+                ));
+
+        albumRepository.delete(album);
+    }
 }

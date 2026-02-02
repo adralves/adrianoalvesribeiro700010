@@ -124,4 +124,34 @@ public class AlbumController {
 
 
     }
+
+    @Operation(
+            summary = "Buscar álbum por ID",
+            description = "Retorna os dados de um álbum a partir do seu identificador"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Álbum encontrado com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Álbum não encontrado", content = @Content)
+    })
+    @GetMapping("/{id}")
+    public Album buscarAlbumPorId(@PathVariable Long id) {
+        return albumService.buscarPorId(id);
+    }
+
+    @Operation(
+            summary = "Excluir álbum",
+            description = "Remove um álbum do sistema a partir do seu ID"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Álbum removido com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Álbum não encontrado", content = @Content)
+    })
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void excluirAlbum(@PathVariable Long id) {
+        albumService.excluir(id);
+    }
+
+
 }
