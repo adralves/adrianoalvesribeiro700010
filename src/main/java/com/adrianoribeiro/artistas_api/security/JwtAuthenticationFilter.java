@@ -71,7 +71,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             String token = authHeader.substring(7);
-
+// comentando para teste de token invalido 401
+//            try {
+//                if (jwtService.isAccessTokenValid(token)) {
+//
+//                    String username = jwtService.extractUsername(token);
+//
+//                    UsernamePasswordAuthenticationToken authentication =
+//                            new UsernamePasswordAuthenticationToken(
+//                                    username,
+//                                    null,
+//                                    List.of()
+//                            );
+//
+//                    SecurityContextHolder.getContext()
+//                            .setAuthentication(authentication);
+//                }
+//            } catch (Exception e) {
+//                SecurityContextHolder.clearContext();
+//            }
             try {
                 if (jwtService.isAccessTokenValid(token)) {
 
@@ -86,10 +104,18 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
                     SecurityContextHolder.getContext()
                             .setAuthentication(authentication);
+
+                } else {
+                    SecurityContextHolder.clearContext();
+                    response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
+                    return;
                 }
             } catch (Exception e) {
                 SecurityContextHolder.clearContext();
+                response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Token inválido");
+                return;
             }
+
         }
 
         // ==========================
