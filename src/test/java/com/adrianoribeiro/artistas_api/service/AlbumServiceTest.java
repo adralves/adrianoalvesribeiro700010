@@ -2,6 +2,7 @@ package com.adrianoribeiro.artistas_api.service;
 
 import com.adrianoribeiro.artistas_api.dto.AtualizarAlbumDTO;
 import com.adrianoribeiro.artistas_api.model.Album;
+import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
 import com.adrianoribeiro.artistas_api.repository.AlbumRepository;
 import com.adrianoribeiro.artistas_api.repository.ArtistaRepository;
 import com.adrianoribeiro.artistas_api.websocket.AlbumNotificationService;
@@ -118,4 +119,39 @@ class AlbumServiceTest {
         verify(albumRepository, times(1)).save(albumExistente);
     }
 
+    @Test
+    void deveListarPorTipoArtista() {
+        Page<Album> page = new PageImpl<>(List.of(new Album()));
+        when(albumRepository.findByTipoArtista(eq(TipoArtista.CANTOR), any(Pageable.class)))
+                .thenReturn(page);
+
+        Page<Album> resultado = albumService.listarPorTipoArtista(TipoArtista.CANTOR, PageRequest.of(0, 10));
+
+        assertNotNull(resultado);
+        verify(albumRepository).findByTipoArtista(eq(TipoArtista.CANTOR), any());
+    }
+
+    @Test
+    void deveListarAlbunsPorNomeArtistaNoService() {
+        // Arrange
+        String nomeBusca = "Linkin Park";
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Album album = new Album();
+        album.setNome("Hybrid Theory");
+        Page<Album> pageMock = new PageImpl<>(List.of(album));
+
+        when(albumRepository.listaAlbunsPorArtista(eq(nomeBusca), any(Pageable.class)))
+                .thenReturn(pageMock);
+
+        // Act
+        Page<Album> resultado = albumService.listaAlbunsPorArtista(nomeBusca, pageable);
+
+        // Assert
+        assertNotNull(resultado);
+        assertEquals(1, resultado.getTotalElements());
+        assertEquals("Hybrid Theory", resultado.getContent().get(0).getNome());
+
+        verify(albumRepository, times(1)).listaAlbunsPorArtista(nomeBusca, pageable);
+    }
 }

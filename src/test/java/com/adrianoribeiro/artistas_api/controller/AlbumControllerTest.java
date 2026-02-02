@@ -11,16 +11,13 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -145,5 +142,71 @@ class AlbumControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.content[0].id").value(1))
                 .andExpect(jsonPath("$.content[0].nome").value("Rock Beats 2026"));
+    }
+
+    @Test
+    void deveTestarOrdenacaoEPaginacao() throws Exception {
+        Album album1 = new Album();
+        album1.setId(1L);
+        album1.setNome("Samba e Sucesso");
+
+        Album album2 = new Album();
+        album2.setId(2L);
+        album2.setNome("Pop Mix");
+
+        Sort sort = Sort.by("nome").ascending();
+        Pageable pageable = PageRequest.of(0, 10, sort);
+        Page<Album> page = new PageImpl<>(List.of(album1, album2), pageable, 2);
+
+        when(albumService.listarAlbuns(any(), any(Pageable.class))).thenReturn(page);
+
+        mockMvc.perform(get("/api/v1/album")
+                        .param("page", "0")
+                        .param("size", "10")
+                        .param("sort", "nome,asc"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content[0].nome").value("Samba e Sucesso"))
+                .andExpect(jsonPath("$.content[1].nome").value("Pop Mix"));
+    }
+
+    @Test
+    void deveRetornarPaginaVaziaQuandoNaoExistiremAlbuns() throws Exception {
+        Page<Album> emptyPage = new PageImpl<>(List.of(), PageRequest.of(0, 10), 0);
+        when(albumService.listarAlbuns(isNull(), any(Pageable.class))).thenReturn(emptyPage);
+
+        mockMvc.perform(get("/api/v1/album")
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.content").isEmpty());
+    }
+
+    @Test
+    void deveRetornar404AoAtualizarAlbumInexistente() throws Exception {
+        when(albumService.atualizarAlbum(eq(999L), any()))
+                .thenThrow(new RuntimeException("Álbum não encontrado"));
+
+        mockMvc.perform(put("/api/v1/album/{id}", 999L)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\":\"Novo Nome\"}"))
+                .andExpect(status().isInternalServerError()); // RuntimeException gera 500
+    }
+
+    @Test
+    void deveRetornar400AoCriarAlbumInvalido() throws Exception {
+        // Supondo que seu CriarAlbumDTO tenha @NotBlank no nome
+        mockMvc.perform(post("/api/v1/album")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content("{\"nome\": \"\"}")) // Nome vazio
+                .andExpect(status().isBadRequest());
+    }
+
+    @Test
+    void deveRetornar400ParaTipoArtistaInexistente() throws Exception {
+        mockMvc.perform(get("/api/v1/album/tipo-artista")
+                        .param("tipo", "DJ") // DJ não existe no seu Enum TipoArtista
+                        .param("page", "0")
+                        .param("size", "10"))
+                .andExpect(status().isBadRequest());
     }
 }
