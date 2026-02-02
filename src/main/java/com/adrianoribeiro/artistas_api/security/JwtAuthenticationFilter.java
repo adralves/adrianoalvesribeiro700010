@@ -45,7 +45,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/app")
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
-                || path.startsWith("/actuator");
+                || path.startsWith("/actuator")
+                || path.startsWith("/api/v2/auth");
     }
 
     @Override
@@ -55,7 +56,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             FilterChain filterChain
     ) throws ServletException, IOException {
 
-        System.out.println("JWT FILTER -> URI: " + request.getRequestURI());
+        String path = request.getRequestURI();
+
+        // AUTH ENDPOINTS NÃO PASSAM PELO JWT FILTER
+        if (path.startsWith("/api/v2/auth/")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
 
         // OPTIONS passa direto (CORS)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
@@ -71,25 +78,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             String token = authHeader.substring(7);
-// comentando para teste de token invalido 401
-//            try {
-//                if (jwtService.isAccessTokenValid(token)) {
-//
-//                    String username = jwtService.extractUsername(token);
-//
-//                    UsernamePasswordAuthenticationToken authentication =
-//                            new UsernamePasswordAuthenticationToken(
-//                                    username,
-//                                    null,
-//                                    List.of()
-//                            );
-//
-//                    SecurityContextHolder.getContext()
-//                            .setAuthentication(authentication);
-//                }
-//            } catch (Exception e) {
-//                SecurityContextHolder.clearContext();
-//            }
             try {
                 if (jwtService.isAccessTokenValid(token)) {
 
