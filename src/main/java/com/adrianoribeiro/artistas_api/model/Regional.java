@@ -11,25 +11,55 @@ public class Regional {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "regional_id", nullable = false, unique = true)
+    @Column(name = "regional_id", nullable = false)
     private Integer regionalId;
 
     @Column(nullable = false, length = 200)
     private String nome;
 
     @Column(nullable = false)
-    private Boolean ativo = true;
+    private boolean ativo = true;
 
     @Column(name = "data_criacao", nullable = false, updatable = false)
     private LocalDateTime dataCriacao = LocalDateTime.now();
 
-    // Getters e Setters
-    public Long getId() { return id; }
-    public Integer getRegionalId() { return regionalId; }
-    public void setRegionalId(Integer regionalId) { this.regionalId = regionalId; }
-    public String getNome() { return nome; }
-    public void setNome(String nome) { this.nome = nome; }
-    public Boolean getAtivo() { return ativo; }
-    public void setAtivo(Boolean ativo) { this.ativo = ativo; }
-    public LocalDateTime getDataCriacao() { return dataCriacao; }
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Integer getRegionalId() {
+        return regionalId;
+    }
+
+    public void setRegionalId(Integer regionalId) {
+        this.regionalId = regionalId;
+    }
+
+    public String getNome() {
+        return nome;
+    }
+
+    public void setNome(String nome) {
+        this.nome = nome;
+    }
+
+    public boolean isAtivo() {
+        return ativo;
+    }
+
+    public void setAtivo(boolean ativo) {
+        this.ativo = ativo;
+    }
+
+    public LocalDateTime getDataCriacao() {
+        return dataCriacao;
+    }
+
+    public void setDataCriacao(LocalDateTime dataCriacao) {
+        this.dataCriacao = dataCriacao;
+    }
 }

@@ -12,8 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/v1/regionais")
 @Tag(
-        name = "Regionais",
-        description = "Endpoints responsáveis pela sincronização de regionais"
+        name = "Regionais"
 )
 @SecurityRequirement(name = "bearerAuth")
 public class RegionalSyncController {
