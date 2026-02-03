@@ -6,6 +6,8 @@ import com.adrianoribeiro.artistas_api.dto.RegionalResponseDTO;
 import com.adrianoribeiro.artistas_api.model.Regional;
 import com.adrianoribeiro.artistas_api.service.RegionalQueryService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
@@ -75,7 +77,14 @@ public class RegionalController {
     }
 
     @DeleteMapping("/{regionalId}")
-    @Operation(summary = "Desativar uma regional - Exclusão lógica")
+    @Operation(
+            summary = "Desativar uma regional",
+            description = "Marca a regional como inativa sem remover o registro do banco"
+            )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Regional desativada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Regional não encontrada ou já inativa")
+    })
     public ResponseEntity<Void> desativar(@PathVariable Integer regionalId) {
 
         service.desativar(regionalId);
