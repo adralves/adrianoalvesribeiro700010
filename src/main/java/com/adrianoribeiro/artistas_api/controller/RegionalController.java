@@ -11,7 +11,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import java.util.Map;
 
 import java.util.List;
 
@@ -48,6 +47,7 @@ public class RegionalController {
     @Operation(summary = "Criar nova regional")
     public ResponseEntity<RegionalResponseDTO> criar(@RequestBody CriarRegionalRequestDTO request) {
         Regional regional = service.criar(request);
+
         return ResponseEntity.status(HttpStatus.CREATED)
                 .body(RegionalResponseDTO.fromEntity(regional));
     }
@@ -55,7 +55,9 @@ public class RegionalController {
     @GetMapping("/{regionalId}")
     @Operation(summary = "Buscar regional por ID")
     public ResponseEntity<RegionalResponseDTO> buscarPorId(@PathVariable Integer regionalId) {
+
         Regional regional = service.buscarPorId(regionalId);
+
         return ResponseEntity.ok(RegionalResponseDTO.fromEntity(regional));
     }
 
@@ -65,9 +67,20 @@ public class RegionalController {
             @PathVariable Integer regionalId,
             @RequestBody AtualizarRegionalRequestDTO request
     ) {
+
         Regional atualizado = service.atualizarRegional(regionalId, request);
+
         return ResponseEntity.ok(RegionalResponseDTO.fromEntity(atualizado));
+
     }
 
+    @DeleteMapping("/{regionalId}")
+    @Operation(summary = "Desativar uma regional - Exclusão lógica")
+    public ResponseEntity<Void> desativar(@PathVariable Integer regionalId) {
+
+        service.desativar(regionalId);
+
+        return ResponseEntity.noContent().build();
+    }
 
 }

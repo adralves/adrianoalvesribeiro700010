@@ -27,6 +27,7 @@ public class RegionalService {
 
     @Transactional
     public void sincronizarRegionais() {
+
         List<RegionalDto> externos = client.buscarRegionais();
         if (externos == null) return;
 
@@ -76,11 +77,13 @@ public class RegionalService {
 
     // Metodo auxiliar para evitar repetição de código
     private void salvarNovaRegional(RegionalDto dto) {
+
         Regional novo = new Regional();
         novo.setRegionalId(dto.getId());
         novo.setNome(dto.getNome());
         novo.setAtivo(true);
         repository.save(novo);
+
     }
 
 

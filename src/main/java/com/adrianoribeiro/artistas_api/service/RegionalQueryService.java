@@ -27,10 +27,12 @@ public class RegionalQueryService {
 
     @Transactional
     public Regional criar(CriarRegionalRequestDTO request) {
+
         Regional regional = new Regional();
         regional.setRegionalId(request.regionalId());
         regional.setNome(request.nome());
         regional.setAtivo(Boolean.TRUE);
+
         return repository.save(regional);
     }
 
@@ -43,6 +45,7 @@ public class RegionalQueryService {
 
     @Transactional
     public Regional atualizarRegional(Integer regionalId, AtualizarRegionalRequestDTO request) {
+
         // Busca registro ativo existente
         Optional<Regional> existenteOpt = repository.findByRegionalIdAndAtivoTrue(regionalId);
 
@@ -75,4 +78,14 @@ public class RegionalQueryService {
         }
     }
 
+    @Transactional
+    public void desativar(Integer regionalId) {
+        Regional regional = repository.findByRegionalIdAndAtivoTrue(regionalId)
+                .orElseThrow(() -> new EntityNotFoundException(
+                        "Não foi possível desativar: Regional não encontrada ou já inativa. ID: " + regionalId
+                ));
+
+        regional.setAtivo(false);
+        repository.save(regional);
+    }
 }

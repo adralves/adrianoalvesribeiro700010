@@ -47,10 +47,6 @@ public class Regional {
         this.nome = nome;
     }
 
-    public boolean isAtivo() {
-        return ativo;
-    }
-
     public void setAtivo(boolean ativo) {
         this.ativo = ativo;
     }
@@ -59,7 +55,4 @@ public class Regional {
         return dataCriacao;
     }
 
-    public void setDataCriacao(LocalDateTime dataCriacao) {
-        this.dataCriacao = dataCriacao;
-    }
 }

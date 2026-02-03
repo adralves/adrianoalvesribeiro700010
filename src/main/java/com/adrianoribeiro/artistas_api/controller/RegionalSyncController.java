@@ -30,9 +30,8 @@ public class RegionalSyncController {
             Sincroniza as regionais com base no endpoint externo.
             
             Observação:
-            Além do endpoint manual, a aplicação executa a sincronização
-            automaticamente a cada 60 segundos,
-            garantindo que os dados permaneçam sempre atualizados.
+            Além da sincronização manual, a aplicação executa a sincronização
+            automaticamente quando a aplicação e iniciada.
             """
     )
     public ResponseEntity<Void> sincronizar() {

@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @Repository
 public interface RegionalRepository extends JpaRepository<Regional, Long> {
+
     Optional<Regional> findByRegionalIdAndAtivoTrue(Integer regionalId);
 
     List<Regional> findAllByAtivoTrue();

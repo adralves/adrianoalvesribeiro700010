@@ -5,7 +5,3 @@ CREATE TABLE regionais (
     ativo BOOLEAN NOT NULL DEFAULT true,
     data_criacao TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
-
-CREATE UNIQUE INDEX uq_regionais_regional_id_ativo
-ON regionais (regional_id)
-WHERE ativo = true;
