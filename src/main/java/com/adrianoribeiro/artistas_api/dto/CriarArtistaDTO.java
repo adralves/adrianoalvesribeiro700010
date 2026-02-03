@@ -8,11 +8,11 @@ import jakarta.validation.constraints.Size;
 
 public class CriarArtistaDTO {
 
-    @NotBlank(message = "O nome do artista é obrigatório.")
+    @NotBlank(message = "O nome do artista deve ser informado.")
     @Size(max = 200, message = "O nome do artista deve ter no máximo 200 caracteres.")
     private String nome;
 
-    @NotNull(message = "O tipo do artista é obrigatório.")
+    @NotNull(message = "O tipo do artista deve ser informado. Valores permitidos: CANTOR ou BANDA")
     @Schema(example = "BANDA", allowableValues = {"CANTOR", "BANDA"})
     private TipoArtista tipo;
 

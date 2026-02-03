@@ -71,7 +71,7 @@ public class ArtistaController {
             @ApiResponse(responseCode = "400", description = "Dados inválidos", content = @Content)
     })
     @PutMapping("/{id}")
-    public ResponseEntity<Artista> atualizarAlbum(@PathVariable Long id,@Valid @RequestBody AtualizarArtistaDTO dto) {
+    public ResponseEntity<Artista> atualizarArtista(@PathVariable Long id,@Valid @RequestBody AtualizarArtistaDTO dto) {
         return ResponseEntity.ok(artistaService.atualizarArtista(id, dto));
     }
 
