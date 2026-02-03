@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -46,7 +47,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 || path.startsWith("/swagger")
                 || path.startsWith("/v3/api-docs")
                 || path.startsWith("/actuator")
-                || path.startsWith("/api/v2/auth");
+                || path.startsWith("/api/v2/auth")
+                || path.startsWith("/api/v2/auth/refresh")
+                || path.startsWith("/api/v1/auth/refresh")
+                || path.startsWith("/api/v1/auth/login");
     }
 
     @Override
@@ -57,12 +61,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     ) throws ServletException, IOException {
 
         String path = request.getRequestURI();
-
-        // AUTH ENDPOINTS NÃO PASSAM PELO JWT FILTER
-        if (path.startsWith("/api/v2/auth/")) {
-            filterChain.doFilter(request, response);
-            return;
-        }
 
         // OPTIONS passa direto (CORS)
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
@@ -87,7 +85,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                             new UsernamePasswordAuthenticationToken(
                                     username,
                                     null,
-                                    List.of()
+                                    List.of(new SimpleGrantedAuthority("ROLE_USER"))
                             );
 
                     SecurityContextHolder.getContext()
@@ -130,13 +128,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                     new UsernamePasswordAuthenticationToken(
                                             username,
                                             null,
-                                            List.of()
+                                            List.of(new SimpleGrantedAuthority("ROLE_USER"))
                                     )
                             );
                 }
             } catch (Exception ignored) {
                 SecurityContextHolder.clearContext();
             }
+        }
+        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+            response.sendError(
+                    HttpServletResponse.SC_UNAUTHORIZED,
+                    "Você precisa estar autenticado para acessar este recurso"
+            );
+            return;
         }
 
         filterChain.doFilter(request, response);
