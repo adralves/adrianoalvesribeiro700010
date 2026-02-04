@@ -34,25 +34,49 @@ public class AlbumImagemService {
 
     @Transactional
     public List<String> adicionarImagens(Long albumId, MultipartFile[] files) {
-
         Album album = albumRepository.findById(albumId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "Álbum não encontrado"
-                ));
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Álbum não encontrado"));
 
         List<String> urls = new ArrayList<>();
 
         for (MultipartFile file : files) {
-            String url = minioService.uploadImagem(file);
+            // Validação de tipo de arquivo
+            validarSeArquivoEImagem(file);
 
+            String url = minioService.uploadImagem(file);
             AlbumImagem imagem = new AlbumImagem(url, album);
             albumImagemRepository.save(imagem);
-
             urls.add(url);
         }
-
         return urls;
+    }
+
+    @Transactional
+    public String atualizarImagem(Long imagemId, MultipartFile file) {
+        validarSeArquivoEImagem(file);
+
+        AlbumImagem imagemExistente = albumImagemRepository.findById(imagemId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Imagem não encontrada"));
+
+        // 1. Remove a imagem antiga do MinIO para não deixar lixo
+        minioService.removerArquivo(imagemExistente.getUrl());
+
+        // 2. Faz o upload da nova imagem
+        String novaUrl = minioService.uploadImagem(file);
+
+        // 3. Atualiza o registro no banco
+        imagemExistente.setUrl(novaUrl);
+        albumImagemRepository.save(imagemExistente);
+
+        return novaUrl;
+    }
+
+    private void validarSeArquivoEImagem(MultipartFile file) {
+        String contentType = file.getContentType();
+        if (contentType == null || !contentType.startsWith("image/")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,
+                    "O arquivo " + file.getOriginalFilename() + " não é uma imagem válida.");
+        }
     }
 
     @Transactional(readOnly = true)

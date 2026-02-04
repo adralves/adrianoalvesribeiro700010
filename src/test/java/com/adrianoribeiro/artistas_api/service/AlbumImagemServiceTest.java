@@ -55,7 +55,7 @@ class AlbumImagemServiceTest {
         when(minioService.uploadImagem(file1)).thenReturn("http://s3/capa1.jpg");
         when(minioService.uploadImagem(file2)).thenReturn("http://s3/capa2.jpg");
 
-        List<String> urls = albumImagemService.uploadCapas(1L, new MockMultipartFile[]{file1, file2});
+        List<String> urls = albumImagemService.adicionarImagens(1L, new MockMultipartFile[]{file1, file2});
 
         assertEquals(2, urls.size());
         assertEquals("http://s3/capa1.jpg", urls.get(0));
@@ -74,7 +74,7 @@ class AlbumImagemServiceTest {
 
         ResponseStatusException exception = assertThrows(
                 ResponseStatusException.class,
-                () -> albumImagemService.uploadCapas(1L, new MockMultipartFile[]{file})
+                () -> albumImagemService.adicionarImagens(1L, new MockMultipartFile[]{file})
         );
 
         assertEquals(HttpStatus.NOT_FOUND, exception.getStatusCode());

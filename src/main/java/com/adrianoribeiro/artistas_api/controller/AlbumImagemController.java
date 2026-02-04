@@ -61,25 +61,39 @@ public class AlbumImagemController {
         return ResponseEntity.ok(new UploadAlbumImagensResponseDTO(urls));
     }
 
-    @GetMapping("/{albumId}/capas")
+    @GetMapping("/{albumId}")
     @Operation(summary = "Listar todas as imagens de um álbum")
     public ResponseEntity<List<AlbumImagemResponseDTO>> listar(@PathVariable Long albumId) {
         return ResponseEntity.ok(albumImagemService.listarImagens(albumId));
     }
 
-    @DeleteMapping("/capas/{imagemId}")
+    @DeleteMapping("/{imagemId}")
     @Operation(summary = "Remover uma imagem específica")
     public ResponseEntity<Void> excluir(@PathVariable Long imagemId) {
         albumImagemService.excluirImagem(imagemId);
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/capas/{imagemId}/download")
+    @GetMapping("/{imagemId}/download")
     @Operation(summary = "Gera um link temporário para download")
     public ResponseEntity<Map<String, String>> download(@PathVariable Long imagemId) {
         String url = albumImagemService.download(imagemId);
 
         // Retornamos um JSON com a URL para facilitar o consumo
         return ResponseEntity.ok(Map.of("downloadUrl", url));
+    }
+
+    @PutMapping(
+            value = "/{imagemId}",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE
+    )
+    @Operation(summary = "Atualiza uma imagem específica substituindo o arquivo")
+    public ResponseEntity<Map<String, String>> atualizarImagem(
+            @PathVariable Long imagemId,
+            @RequestPart("file") MultipartFile file) {
+
+        String novaUrl = albumImagemService.atualizarImagem(imagemId, file);
+
+        return ResponseEntity.ok(Map.of("url", novaUrl));
     }
 }
