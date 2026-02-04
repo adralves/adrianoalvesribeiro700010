@@ -37,15 +37,17 @@ public class MinioService {
                             .build()
             );
 
-            // Gera URL temporária (c/ 15 minutos)
-            return minioClient.getPresignedObjectUrl(
+            // Gera URL temporária (c/ 30 minutos)
+            String urlAssinada = minioClient.getPresignedObjectUrl(
                     GetPresignedObjectUrlArgs.builder()
                             .method(Method.GET)
                             .bucket(bucket)
                             .object(nomeArquivo)
                             .expiry(30, TimeUnit.MINUTES)
-                            .build()
-            );
+                            .build());
+
+            return urlAssinada.replace("http://minio:9000/", "http://localhost/minio/");//necessario para o ngix saber a rota correta
+
 
         } catch (Exception e) {
             throw new RuntimeException("Erro ao enviar imagem para o MinIO", e);
