@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -46,7 +45,7 @@ class AlbumImagemControllerTest {
 
         List<String> urls = List.of("http://s3/capa1.jpg", "http://s3/capa2.jpg");
 
-        when(albumImagemService.uploadCapas(anyLong(), any(MultipartFile[].class)))
+        when(albumImagemService.adicionarImagens(anyLong(), any(MultipartFile[].class)))
                 .thenReturn(urls);
 
         mockMvc.perform(multipart("/api/v1/albuns/{albumId}/capas", 1L)
