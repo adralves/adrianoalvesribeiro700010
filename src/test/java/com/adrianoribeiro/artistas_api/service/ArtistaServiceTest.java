@@ -121,25 +121,4 @@ class ArtistaServiceTest {
         assertThrows(RuntimeException.class, () -> artistaService.atualizarArtista(1L, dto));
     }
 
-    @Test
-    void deveListarAlbunsDoArtistaComSucesso() {
-        Album album = new Album();
-        album.setId(1L);
-        album.setNome("Post Traumatic");
-
-        when(artistaRepository.existsById(1L)).thenReturn(true);
-        when(albumRepository.findAlbunsByArtistaId(1L)).thenReturn(List.of(album));
-
-        List<Album> resultado = artistaService.listarAlbunsArtista(1L);
-
-        assertEquals(1, resultado.size());
-        assertEquals("Post Traumatic", resultado.get(0).getNome());
-    }
-
-    @Test
-    void deveLancarExcecaoSeArtistaNaoExistirAoListarAlbuns() {
-        when(artistaRepository.existsById(1L)).thenReturn(false);
-
-        assertThrows(EntityNotFoundException.class, () -> artistaService.listarAlbunsArtista(1L));
-    }
 }

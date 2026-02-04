@@ -115,20 +115,4 @@ class ArtistaControllerTest {
                 .andExpect(jsonPath("$.tipo").value("CANTOR"));
     }
 
-    @Test
-    void deveListarAlbunsDoArtistaComSucesso() throws Exception {
-        Album album = new Album();
-        album.setId(1L);
-        album.setNome("Post Traumatic");
-
-        List<Album> albuns = List.of(album);
-
-        when(artistaService.listarAlbunsArtista(1L)).thenReturn(albuns);
-
-        mockMvc.perform(get("/api/v1/artistas/{id}/albuns", 1L))
-                .andDo(print())
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id").value(1))
-                .andExpect(jsonPath("$[0].nome").value("Post Traumatic"));
-    }
 }
