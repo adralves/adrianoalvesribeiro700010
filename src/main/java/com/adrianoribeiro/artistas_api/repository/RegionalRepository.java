@@ -2,6 +2,7 @@ package com.adrianoribeiro.artistas_api.repository;
 
 import com.adrianoribeiro.artistas_api.model.Regional;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface RegionalRepository extends JpaRepository<Regional, Long> {
 
     List<Regional> findAllByAtivoTrue();
 
+    // Retorna o maior regionalId existente
+    @Query("SELECT MAX(r.regionalId) FROM Regional r")
+    Optional<Integer> findMaxRegionalId();
 }

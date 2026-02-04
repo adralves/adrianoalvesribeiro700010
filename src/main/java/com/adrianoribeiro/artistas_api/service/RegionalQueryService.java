@@ -53,14 +53,16 @@ public class RegionalQueryService {
             Regional existente = existenteOpt.get();
 
             // Verifica se o nome mudou
-            if (!existente.getNome().equals(request.nome())) {
+                if (!existente.getNome().equals(request.nome())) {
                 // Inativa o registro antigo
                 existente.setAtivo(false);
                 repository.save(existente);
 
                 // Cria novo registro ativo
                 Regional novo = new Regional();
-                novo.setRegionalId(request.regionalId());
+
+                // Define o novo regionalId como base no maior numero atual
+                novo.setRegionalId(getNextRegionalId());
                 novo.setNome(request.nome());
                 novo.setAtivo(true);
                 return repository.save(novo);
@@ -71,7 +73,9 @@ public class RegionalQueryService {
         } else {
             // Se não existe registro ativo, cria novo
             Regional novo = new Regional();
-            novo.setRegionalId(request.regionalId());
+
+            // Define o novo regionalId como base no maior numero atual
+            novo.setRegionalId(getNextRegionalId());
             novo.setNome(request.nome());
             novo.setAtivo(true);
             return repository.save(novo);
@@ -87,5 +91,12 @@ public class RegionalQueryService {
 
         regional.setAtivo(false);
         repository.save(regional);
+    }
+
+    /**
+     * Retorna o próximo regionalId disponível (maior + 1)
+     */
+    private Integer getNextRegionalId() {
+        return repository.findMaxRegionalId().orElse(0) + 1;
     }
 }
