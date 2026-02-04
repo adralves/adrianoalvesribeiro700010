@@ -57,7 +57,7 @@ public class SecurityConfig {
                                 "/topic/**",
                                 "/app/**"
                         ).permitAll()
-
+                        .requestMatchers("/error").permitAll()
                         //Auth / Docs / Health
                         .requestMatchers(
                                 "/api/v1/auth/login",
