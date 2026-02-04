@@ -20,7 +20,6 @@ import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import java.util.List;
 
-import static org.mockito.ArgumentMatchers.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -112,7 +111,7 @@ class AlbumControllerTest {
 
         Page<Album> page = new PageImpl<>(List.of(album));
 
-        when(albumService.listarPorTipoArtista(eq(TipoArtista.CANTOR), any(Pageable.class)))
+        when(albumService.listarAlbunsPorTipoArtista(eq(TipoArtista.CANTOR), any(Pageable.class)))
                 .thenReturn(page);
 
         mockMvc.perform(get("/api/v1/album/tipo-artista")
@@ -191,8 +190,9 @@ class AlbumControllerTest {
         mockMvc.perform(put("/api/v1/album/{id}", 999L)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content("{\"nome\":\"Novo Nome\"}"))
-                .andExpect(status().isInternalServerError()); // RuntimeException gera 500
+                .andExpect(status().isNotFound());
     }
+
 
     @Test
     void deveRetornar400AoCriarAlbumInvalido() throws Exception {

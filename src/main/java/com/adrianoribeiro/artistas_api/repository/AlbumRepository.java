@@ -18,11 +18,12 @@ public interface AlbumRepository extends JpaRepository<Album, Long> {
     @EntityGraph(attributePaths = "imagens")
     Page<Album> findByNomeContainingIgnoreCase(String nome, Pageable pageable);
 
+    @EntityGraph(attributePaths = "imagens")
     @Query("""
-        select distinct a
-        from Album a
-        join a.artistas ar
-        where ar.tipo = :tipo
+    SELECT DISTINCT a
+    FROM Album a
+    JOIN a.artistas ar
+    WHERE (:tipo IS NULL OR ar.tipo = :tipo)
     """)
     Page<Album> findByTipoArtista(@Param("tipo") TipoArtista tipo, Pageable pageable);
 

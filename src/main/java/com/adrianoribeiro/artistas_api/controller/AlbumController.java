@@ -20,6 +20,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/v1/album")
 @Tag(name = "Álbuns", description = "Endpoints para gerenciamento de álbuns")
@@ -75,25 +77,22 @@ public class AlbumController {
     }
 
     @Operation(
-            summary = "Listar álbuns por tipo de artista",
-            description = "Lista álbuns filtrando pelo tipo do artista (CANTOR ou BANDA) paginado com ordenação asc/desc"
+            summary = "Listar álbuns por tipo de artista(CANTOR/BANDA) ",
+            description = """ 
+                     Filtra a listagem de álbuns por tipo de artista. Permite identificar
+                     se o álbum pertence a um cantor, ou uma banda.
+                     """
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista de álbuns retornada com sucesso")
     })
     @GetMapping("/tipo-artista")
-    public Page<Album> listarPorTipoArtista(@RequestParam TipoArtista tipo,
+    public ResponseEntity<Page<Album>> listarAlbunsPorTipoArtista(@RequestParam(required = false) TipoArtista tipo,
                                             @ParameterObject Pageable pageable) {
 
-        Page<Album> page = albumService.listarPorTipoArtista(tipo, pageable);
+        Page<Album> page = albumService.listarAlbunsPorTipoArtista(tipo, pageable);
 
-        if (page.isEmpty()) {
-            throw new EntityNotFoundException(
-                    "Não existem álbuns cadastrados para o tipo de artista informado"
-            );
-        }
-
-        return page;
+        return ResponseEntity.ok(page);
     }
 
 
@@ -101,26 +100,17 @@ public class AlbumController {
             summary = "Consulta álbum pelo nome do artista",
             description =  """
                 Permite consultar álbuns filtrando pelo nome do artista (parcial ou completo),
-                com ordenação alfabética ascendente ou descendente.
+                com ordenação.
                 """
     )
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Lista de álbuns retornada com sucesso")
     })
     @GetMapping("/album-por-artista")
-    public Page<Album> listaAlbunsPorArtista(@RequestParam(required = false) String artista,
+    public ResponseEntity<Page<Album>> listaAlbunsPorArtista(@RequestParam(required = false) String artista,
                                              @ParameterObject Pageable pageable) {
-        //return albumService.listaAlbunsPorArtista(artista, pageable);
-        Page<Album> page = albumService.listaAlbunsPorArtista(artista, pageable);
 
-        if (page.isEmpty()) {
-            String mensagem = (artista == null || artista.isBlank())
-                    ? "Não existem álbuns cadastrados para a consulta realizada"
-                    : "Não foram encontrados álbuns para o artista informado";
-
-            throw new EntityNotFoundException(mensagem);
-        }
-        return page;
+        return ResponseEntity.ok(albumService.listaAlbunsPorArtista(artista, pageable));
 
 
     }
@@ -153,5 +143,16 @@ public class AlbumController {
         albumService.excluir(id);
     }
 
-
+    @Operation(
+            summary = "Listar álbuns do artista",
+            description = "Retorna todos os álbuns associados a um artista"
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Lista de álbuns retornada com sucesso"),
+            @ApiResponse(responseCode = "404", description = "Artista não encontrado", content = @Content)
+    })
+    @GetMapping("/artista/{id}")
+    public ResponseEntity<List<Album>> listarAlbunsDoArtista(@PathVariable Long id) {
+        return ResponseEntity.ok(albumService.listarAlbunsDoArtista(id));
+    }
 }

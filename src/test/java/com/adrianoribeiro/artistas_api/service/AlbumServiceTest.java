@@ -4,7 +4,6 @@ import com.adrianoribeiro.artistas_api.dto.AtualizarAlbumDTO;
 import com.adrianoribeiro.artistas_api.model.Album;
 import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
 import com.adrianoribeiro.artistas_api.repository.AlbumRepository;
-import com.adrianoribeiro.artistas_api.repository.ArtistaRepository;
 import com.adrianoribeiro.artistas_api.websocket.AlbumNotificationService;
 import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.Test;
@@ -123,7 +122,7 @@ class AlbumServiceTest {
         when(albumRepository.findByTipoArtista(eq(TipoArtista.CANTOR), any(Pageable.class)))
                 .thenReturn(page);
 
-        Page<Album> resultado = albumService.listarPorTipoArtista(TipoArtista.CANTOR, PageRequest.of(0, 10));
+        Page<Album> resultado = albumService.listarAlbunsPorTipoArtista(TipoArtista.CANTOR, PageRequest.of(0, 10));
 
         assertNotNull(resultado);
         verify(albumRepository).findByTipoArtista(eq(TipoArtista.CANTOR), any());

@@ -1,6 +1,5 @@
 package com.adrianoribeiro.artistas_api.service;
 
-import com.adrianoribeiro.artistas_api.dto.AlbumNotificacaoDTO;
 import com.adrianoribeiro.artistas_api.model.Album;
 import com.adrianoribeiro.artistas_api.model.enums.TipoArtista;
 import com.adrianoribeiro.artistas_api.repository.AlbumRepository;
@@ -12,6 +11,8 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 @Transactional
@@ -52,7 +53,7 @@ public class AlbumService {
         return albumRepository.save(album);
     }
 
-    public Page<Album> listarPorTipoArtista(TipoArtista tipo, Pageable pageable) {
+    public Page<Album> listarAlbunsPorTipoArtista(TipoArtista tipo, Pageable pageable) {
         return albumRepository.findByTipoArtista(tipo, pageable);
     }
 
@@ -76,4 +77,13 @@ public class AlbumService {
 
         albumRepository.delete(album);
     }
+
+    public List<Album> listarAlbunsDoArtista(Long artistaId) {
+        if (!artistaRepository.existsById(artistaId)) {
+            throw new EntityNotFoundException("Artista não encontrado");
+        }
+
+        return albumRepository.findAlbunsByArtistaId(artistaId);
+    }
+
 }
