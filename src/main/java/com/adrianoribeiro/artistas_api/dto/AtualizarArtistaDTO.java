@@ -7,11 +7,9 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public class AtualizarArtistaDTO {
-    //@NotBlank(message = "O nome do Artista é obrigatório.")
     @Size(max = 255)
     private String nome;
 
-    //@NotNull(message = "O tipo do artista é obrigatório.")
     private TipoArtista tipo;
 
     public AtualizarArtistaDTO() {
