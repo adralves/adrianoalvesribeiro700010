@@ -39,10 +39,17 @@ public class SecurityConfig {
 
         http
                 .cors(Customizer.withDefaults())
-                .csrf(csrf -> csrf.disable())
+                .csrf(csrf -> csrf
+                        .ignoringRequestMatchers("/ws/**")
+                        .disable())
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
+
+                .exceptionHandling(exception ->
+                        exception.authenticationEntryPoint(authenticationEntryPoint)
+                )
+
                 .exceptionHandling(exception ->
                         exception.authenticationEntryPoint(authenticationEntryPoint)
                 )
@@ -50,7 +57,8 @@ public class SecurityConfig {
 
                         //Preflight
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-
+                        //monitorar websockt
+                        .requestMatchers("/monitor.html").authenticated()
                         //WebSocket
                         .requestMatchers(
                                 "/ws/**",

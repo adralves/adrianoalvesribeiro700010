@@ -18,15 +18,32 @@ public class JwtAuthenticationEntryPoint implements AuthenticationEntryPoint {
             AuthenticationException authException
     ) throws IOException {
 
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json;charset=UTF-8");
+        String path = request.getRequestURI();
 
-        response.getWriter().write("""
+        // Se o acesso for à página de monitoramento
+        if (path.endsWith("/monitor.html")) {
+            // 1. Define o cabeçalho de DESAFIO (isso faz o pop-up abrir)
+            response.setHeader("WWW-Authenticate", "Basic realm=\"Monitoramento\"");
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("text/html;charset=UTF-8");
+
+            // 2. Texto simples para o navegador
+            response.getWriter().write("<html><body><h1>401 - Autenticação Necessária</h1>" +
+                    "<p>Por favor, recarregue a página e insira as credenciais.</p></body></html>");
+            return;
+        }
+
+        // --- COMPORTAMENTO PADRÃO PARA API (JSON) ---
+        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+        response.setContentType("application/json;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+
+        response.getWriter().write(String.format("""
             {
               "error": "Unauthorized",
-              "message": "Você precisa estar autenticado para acessar este recurso"
+              "message": "%s",
+              "path": "%s"
             }
-        """);
+            """, "Você precisa estar autenticado para acessar este recurso", path));
     }
 }

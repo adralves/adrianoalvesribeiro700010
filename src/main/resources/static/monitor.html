@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Monitor | Artistas API</title>
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; padding: 20px; background-color: #f0f2f5; color: #333; }
+        .container { max-width: 800px; margin: auto; }
+        .header { background: #1a73e8; color: white; padding: 20px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        #status { font-weight: bold; padding: 5px 10px; border-radius: 4px; display: inline-block; margin-top: 10px; }
+        .online { background: #34a853; color: white; }
+        .offline { background: #ea4335; color: white; }
+        .card { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #1a73e8; animation: slideIn 0.3s ease-out; }
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .timestamp { font-size: 0.85em; color: #777; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="header">
+        <h1>📡 WebSocket Monitor</h1>
+        <p>Escutando tópico: <code>/topic/novo-album</code></p>
+        <div id="status" class="offline">Conectando...</div>
+    </div>
+    <div id="log">
+    </div>
+</div>
+
+<script>
+    const socket = new SockJS('/ws'); // Note que usamos o path relativo
+    const stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function (frame) {
+        const status = document.getElementById('status');
+        status.innerText = "ONLINE";
+        status.className = "online";
+
+        stompClient.subscribe('/topic/novo-album', function (notificacao) {
+            const album = JSON.parse(notificacao.body);
+            adicionarCard(album);
+        });
+    }, function (err) {
+        const status = document.getElementById('status');
+        status.innerText = "OFFLINE - Verifique a API";
+        status.className = "offline";
+    });
+
+    function adicionarCard(album) {
+        const log = document.getElementById('log');
+        const div = document.createElement('div');
+        div.className = 'card';
+        div.innerHTML = `
+            <span class="timestamp">${new Date().toLocaleTimeString()}</span>
+            <h3>🎵 Novo Álbum: ${album.nome}</h3>
+            <p>${album.mensagem || 'Um novo álbum foi adicionado ao catálogo.'}</p>
+            <small>ID do Álbum: ${album.id}</small>
+        `;
+        log.insertBefore(div, log.firstChild);
+    }
+</script>
+</body>
+</html>
