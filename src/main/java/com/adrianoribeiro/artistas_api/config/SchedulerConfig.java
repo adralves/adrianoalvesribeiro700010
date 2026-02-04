@@ -17,7 +17,7 @@ public class SchedulerConfig {
 
     @Scheduled(
             initialDelay = 3_000   // Roda 3 segundos após subir a aplicação
-        //    fixedRate = 60_000 // se precisar atualizar de tempo em tempo e manter a aplicacao atualizada em temmpo real
+        //    fixedRate = 60_000 // se precisar atualizar de tempo em tempo e manter a aplicacao atualizada em tempo real
     )
     public void sincronizarPeriodicamente() {
         regionalService.sincronizarRegionais();

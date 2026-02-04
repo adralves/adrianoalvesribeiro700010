@@ -136,13 +136,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
             }
         }
-        if (SecurityContextHolder.getContext().getAuthentication() == null) {
-            response.sendError(
-                    HttpServletResponse.SC_UNAUTHORIZED,
-                    "Você precisa estar autenticado para acessar este recurso"
-            );
-            return;
-        }
+//        if (SecurityContextHolder.getContext().getAuthentication() == null) {
+//            response.sendError(
+//                    HttpServletResponse.SC_UNAUTHORIZED,
+//                    "Você precisa estar autenticado para acessar este recurso"
+//            );
+//            return;
+//        }
 
         filterChain.doFilter(request, response);
     }
