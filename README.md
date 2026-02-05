@@ -1,3 +1,15 @@
+## Dados do processo seletivo
+
+| Campo            | Valor                                                                    |
+|------------------|--------------------------------------------------------------------------|
+| **Edital**       | Processo Seletivo CONJUNTO Nº 001/2026/ SEPLAG                           |
+| **cargo**        | Analista de Tecnologia da Informação - Engenheiro da Computação - Sênior |
+| **Candidato**    | Adriano Alves Ribeiro                                                    |
+| **N° Inscrição** | 16383                                                                    |
+ | **Projeto**      | ANEXO II- A - Projeto Desenvolvedor Back End                             |
+
+---
+
 # Artistas API
 
 API REST para gestão de artistas e álbuns (relacionamento N:N), com autenticação JWT/Basic Auth, upload de imagens via MinIO (Presigned URLs), WebSocket para notificações em tempo real e sincronização de regionais com API externa. Stack: **Spring Boot 3.3**, **Java 17**, **PostgreSQL**, **Flyway**, **MinIO**, **Docker**.
@@ -25,17 +37,6 @@ API REST para gestão de artistas e álbuns (relacionamento N:N), com autentica�
 
 ---
 
-## Dados do processo seletivo
-
-| Campo | Valor |
-|-------|--------|
-| **Processo** | Processo Seletivo SEPLAG |
-| **Vaga** | (conforme edital) |
-| **Candidato** | Adriano Alves Ribeiro |
-| **Identificador** | adrianoalvesribeiro700010 |
-
----
-
 ## Descrição
 
 Sistema de **artistas** e **álbuns** com vínculo **N:N** (tabela `artista_album`). Inclui:
@@ -53,9 +54,9 @@ O banco é **pré-populado** pela migration V2 (artistas e álbuns de exemplo), 
 
 ---
 
-## Arquitetura
+## 🏛️ Arquitetura do Projeto
 
-Organização em **camadas** alinhada ao ecossistema Spring:
+O projeto segue o padrão de **Arquitetura em Camadas (Layered Architecture)**, garantindo a separação de responsabilidades e facilitando a manutenção. A comunicação é baseada no modelo **Stateless** (sem estado no servidor), o que permite alta escalabilidade em ambientes conteinerizados.
 
 | Camada | Responsabilidade |
 |--------|-------------------|
@@ -67,6 +68,8 @@ Organização em **camadas** alinhada ao ecossistema Spring:
 | **Client** | Integração externa (OpenFeign) |
 | **Security** | Filtros (JWT, Basic Auth, Rate Limit), sessão **stateless** |
 | **Exception** | Tratamento global (`@RestControllerAdvice`): validação (400), não encontrado (404), conflito (409) |
+| **WebSocket** | Infraestrutura de mensageria para broadcast de métricas e eventos. |
+| **Infraestrutura (Docker)** | Orquestração do ambiente e gerenciamento de variáveis de configuração. |
 
 **Decisões técnicas:**
 
@@ -105,10 +108,20 @@ Organização em **camadas** alinhada ao ecossistema Spring:
 
 ---
 
-## Início rápido
+## Como testar
+### Opção 1: Tudo em Docker (recomendado)  
 
-### Opção 1: Tudo em Docker (recomendado)
+Clone o repositorio  
+```
+git clone https://github.com/adralves/adrianoalvesribeiro700010.git
+cd adrianoalvesribeiro700010/
+```
+Navegue ate a pasta do projeto "adrianoalvesribeiro700010"
 
+
+(Recomendado) Limpe o cache/volumes do Docker antes de subir, para evitar conflitos de banco/porta:
+
+Execute o seguinte comando no terminal dentro dessa pasta:
 ```bash
 docker compose up -d --build
 ```
@@ -116,32 +129,10 @@ docker compose up -d --build
 - API: **http://localhost:8080**
 - Swagger: **http://localhost:8080/swagger-ui.html**
 - Health: **http://localhost:8080/actuator/health**
+- Liveness **http://localhost:8080/actuator/health/liveness)**
+- Readiness: **http://localhost:8080/actuator/health/readiness**
 - MinIO Console: **http://localhost:9001** (minioadmin / minioadmin)
 
-Parar e remover volumes:
-
-```bash
-docker compose down -v --remove-orphans
-```
-
-### Opção 2: Apenas dependências em Docker, API local
-
-1. Subir Postgres e MinIO:
-
-   ```bash
-   docker compose up -d postgres minio
-   ```
-
-2. Em `application.properties`, usar conexão local, por exemplo:
-   - `spring.datasource.url=jdbc:postgresql://localhost:5432/artistasdb`
-   - `minio.url=http://localhost:9000`
-   - Ajustar `minio.public-url` se for usar Nginx (ex.: `http://localhost/minio`).
-
-3. Executar a aplicação:
-
-   ```bash
-   ./mvnw clean spring-boot:run
-   ```
 
 ### Serviços (Docker Compose)
 
@@ -156,9 +147,78 @@ Credenciais padrão do banco: usuário e senha `postgres`, banco `artistasdb`.
 
 ---
 
-## Autenticação
+## 🔐 Guia de Autenticação (Híbrida)
 
-Endpoints de negócio exigem autenticação (Bearer JWT ou Basic Auth). Públicos: login, refresh, `/actuator/health`, `/swagger-ui/**`, `/v3/api-docs/**`, WebSocket (`/ws`, `/topic/**`, `/app/**`).
+Endpoints de negócio exigem autenticação (Bearer JWT ou Basic Auth). Públicos: login, refresh, `/actuator/health`, `/swagger-ui/**`, `/v3/api-docs/**`, WebSocket (`/ws`, `/topic/**`, `/app/**`).  
+
+O projeto implementa dois fluxos de autenticação para demonstrar versionamento de API e flexibilidade de segurança.  
+
+### Fluxo Recomendado: Autenticação V2 (Híbrida)
+
+Este fluxo utiliza **Basic Auth** para a troca inicial e **JWT** para as chamadas subsequentes.
+
+1.  **Autorização Inicial `basicAuth` (Basic):** * No topo do Swagger, clique no botão **Authorize**.
+
+    -   Em `basicAuth (http, Basic)`, informe:
+
+        -   **Username:** `seletivo`
+
+        -   **Password:** `admin`
+
+    -   Clique em **Authorize** e **Close**.
+
+2.  **Obtenção do Token JWT:**
+
+    -   Vá ao endpoint `POST /api/v2/auth/login`.
+
+    -   Execute a requisição (não precisa de body, pois ele usará suas credenciais Basic).
+
+    -   Copie o `accessToken` retornado.
+
+3.  **Autorização Final (Bearer):**
+
+    -   Clique novamente em **Authorize** no topo da página.
+
+    -   No campo `bearerAuth (http, Bearer)`, cole o seu `accessToken`.
+
+    -   Clique em **Authorize** e **Close**.
+    -   _O token expira em 5 minutos._
+
+4. **Refresh**
+
+   Para renovar o acesso sem refazer o login, utilize o `POST /api/v2/auth/refresh` enviando o seu `refreshToken` gerado junto com o token JWT. Cole o novo `accessToken` no campo `bearerAuth` novamente. Clique em **Authorize** e **Close**.
+
+### Autenticação V1 (JSON Body)
+
+Mantido para fins de versionamento conforme edital.
+
+1.  **Login via Body:**
+
+    -   Acesse `POST /api/v1/auth/login`.
+
+    -   Envie o seguinte JSON:
+
+        JSON
+
+        ```
+        {
+          "username": "seletivo",
+          "password": "admin"
+        }
+        
+        ```
+
+2.  **Ativação do Token:**
+
+    -   Copie o `accessToken` gerado.
+
+    -   Clique no botão **Authorize** (topo direito).
+
+    -   Cole o token em `bearerAuth (http, Bearer)`. Clique em **Authorize** e **Close**.
+
+3.  **Refresh V1:**
+
+    -   Utilize o `POST /api/v1/auth/refresh` com o seu `refreshToken` para obter um novo token JWT Cole o novo `accessToken` no campo `bearerAuth` no botão Authorize(topo da pagina) no campo `bearerAuth` (http, Bearer) Value. em seguida Clique em **Authorize** e **Close**.
 
 ### v1 — Login JSON + JWT
 
@@ -178,7 +238,7 @@ Endpoints de negócio exigem autenticação (Bearer JWT ou Basic Auth). Público
 
 **Credenciais padrão:** `seletivo` / `admin` (configuráveis em `app.security.username` e `app.security.password`).
 
-**JWT:** Access token com vida curta (ex.: 5 min); refresh token com vida maior (ex.: 30 min). Refresh tokens são armazenados em memória; o endpoint de refresh exige token válido e presença no store.
+**JWT:** Access token com vida curta (ex.: 5 min); refresh token com vida maior (ex.: 30 min). Refresh tokens são armazenados em memória.
 
 ---
 
@@ -252,7 +312,7 @@ Base: `http://localhost:8080`. Todos os recursos abaixo exigem autenticação, e
 | **album_imagens** | `id` (PK), `url` (nome do objeto no MinIO), `album_id` (FK, CASCADE) | |
 | **regionais** | `id` (PK), `regional_id` (UNIQUE, ID de negócio), `nome`, `ativo`, `data_criacao` | Modelo ativo/inativo |
 
-A **carga inicial (V2)** insere artistas (ex.: Serj Tankian, Mike Shinoda, Michel Teló, Guns N' Roses) e álbuns, permitindo testar listagens, filtros e vínculos sem cadastro manual.
+A **carga inicial (V2)** insere artistas (ex.: Serj Tankian, Mike Shinoda, Michel Teló, Guns N' Roses) e álbuns, permitindo testar listagens e filtros sem cadastro manual.
 
 ---
 
@@ -260,19 +320,15 @@ A **carga inicial (V2)** insere artistas (ex.: Serj Tankian, Mike Shinoda, Miche
 
 - **Actuator:** endpoints `health` e `info` expostos; health com detalhes (`show-details=always`).
 - **Health customizado:** `MinioHealthIndicator` executa `listBuckets` no MinIO e inclui o status (UP/DOWN) no health agregado.
-- **Monitor WebSocket:** página estática `/monitor.html` subscreve o tópico `/topic/novo-album` e exibe notificações de novos álbuns; o acesso à página exige **Basic Auth** (tratado por `JwtAuthenticationEntryPoint`).
+- **Monitor WebSocket:** página estática `/monitor.html` subscreve o tópico `/topic/novo-album` e exibe notificações de novos álbuns em tempo real; o acesso à página exige **Basic Auth** (tratado por `JwtAuthenticationEntryPoint`).  
+  1 . Com a aplicação rodando, acesse: http://localhost:8080/monitor.html necessario login e senha:  
 
----
+       Username: `seletivo`
 
-## Testes
+       Password: `admin`  
+ 2 . O painel indicará o status ONLINE.
 
-Testes em `src/test/java` (JUnit, Spring Boot Test).
-
-```bash
-./mvnw test
-```
-
-Principais conjuntos: **controller** (Artista, Album, AlbumImagem, Auth v2), **service** (Artista, Album, AlbumImagem, JWT). O build do Docker usa `-DskipTests`; para rodar testes no build, use `./mvnw clean package` sem `-DskipTests`.
+  3 . Ao realizar um POST de criação de álbum via Swagger ou Postman, a notificação aparecerá automaticamente na tela sem necessidade de refresh.
 
 ---
 
@@ -365,13 +421,15 @@ src/main/resources/
 
 Sugestões de evolução com base no código atual:
 
-| Área | Proposta | Motivo |
-|------|----------|--------|
-| Refresh token | Store distribuído (ex.: Redis) ou persistência | Suportar múltiplas instâncias e revogação explícita |
-| Rate limit | Parametrizar limite/janela (config) e políticas por endpoint | Flexibilidade e proteção granular |
-| Regionais | URL da API externa via env; retry + circuit breaker (Resilience4j) | Resiliência e configuração por ambiente |
-| MinIO | Unificar `minio.public-url` por perfil (local/docker) | Evitar divergência entre ambientes |
-| Testes | Integração com Testcontainers (PostgreSQL, MinIO); testes de segurança e fluxo Presigned URL | Maior confiança em deploy |
-| API | Versionar recursos (ex.: `/api/v2/artistas`) e deprecar v1 de forma controlada | Evolução sem quebrar clientes |
-| Logs | Substituir `System.out` por logger (ex.: SLF4J) | Rastreabilidade e níveis de log |
-| OpenAPI | Exemplos de request/response e documentação dos códigos de erro no `GlobalExceptionHandler` | Melhor experiência para integradores |
+## 🚀 Futuras Implementações (Roadmap)
+
+Roadmap de Escalabilidade e Novas Implementações::
+
+1. **Persistência de Métricas com Prometheus & Grafana**:
+    * Evoluir o monitoramento atual (`/monitor.html`) para uma solução de observabilidade completa, utilizando o **Micrometer** para exportar métricas para o Prometheus e visualizá-las em dashboards profissionais no Grafana.
+
+2. **Autenticação de Dois Fatores (2FA/MFA)**:
+    * Implementar uma camada extra de segurança no fluxo de login da **API V2**, integrando o envio de códigos temporários (TOTP) via e-mail ou aplicativos de autenticação (como Google Authenticator).
+
+3. **Arquitetura de Mensageria com Redis Pub/Sub**:
+    * Escalar o **WebSocket** para ambientes multi-container (Cluster Docker), utilizando o Redis como *Message Broker*. Isso garante que um evento enviado em uma instância da API seja replicado para todos os clientes conectados em outras instâncias.
