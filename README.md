@@ -302,9 +302,9 @@ A **carga inicial (V2)** insere artistas (ex.: Serj Tankian, Mike Shinoda, Miche
 - **Monitor WebSocket:** página estática `/monitor.html` subscreve o tópico `/topic/novo-album` e exibe notificações de novos álbuns em tempo real; o acesso à página exige **Basic Auth** (tratado por `JwtAuthenticationEntryPoint`).  
   1 . Com a aplicação rodando, acesse: http://localhost:8080/monitor.html necessario login e senha:  
 
-       Username: `seletivo`
+       Username: seletivo
 
-       Password: `admin`  
+       Password: admin  
  2 . O painel indicará o status ONLINE.
 
   3 . Ao realizar um POST de criação de álbum via Swagger ou Postman, a notificação aparecerá automaticamente na tela sem necessidade de refresh.
