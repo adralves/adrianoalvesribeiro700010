@@ -16,27 +16,6 @@ API REST para gestão de artistas e álbuns (relacionamento N:N), com autentica�
 
 ---
 
-## Índice
-
-- [Dados do processo seletivo](#-dados-do-processo-seletivo)
-- [Descrição](#-descrição)
-- [Arquitetura](#-arquitetura)
-- [Tecnologias](#-tecnologias)
-- [Pré-requisitos](#-pré-requisitos)
-- [Início rápido](#-início-rápido)
-- [Autenticação](#-autenticação)
-- [Endpoints](#-endpoints)
-- [Upload e armazenamento](#-upload-e-armazenamento)
-- [Banco de dados](#-banco-de-dados)
-- [Observabilidade](#-observabilidade)
-- [Testes](#-testes)
-- [Documentação da API](#-documentação-da-api)
-- [Variáveis de ambiente](#-variáveis-de-ambiente)
-- [Estrutura do projeto](#-estrutura-do-projeto)
-- [Próximos passos técnicos](#-próximos-passos-técnicos)
-
----
-
 ## Descrição
 
 Sistema de **artistas** e **álbuns** com vínculo **N:N** (tabela `artista_album`). Inclui:
