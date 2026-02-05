@@ -20,7 +20,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v2/auth")
-@Tag(name = "Autenticação - V2")
+@Tag(name = "Autenticação - V2(Basic Auth + JWT)")
 public class AuthControllerV2 {
 
     private final JwtService jwtService;

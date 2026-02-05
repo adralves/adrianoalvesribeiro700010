@@ -169,8 +169,6 @@ Este fluxo utiliza **Basic Auth** para a troca inicial e **JWT** para as chamada
 
 ### Autenticação V1 (JSON Body)
 
-Mantido para fins de versionamento conforme edital.
-
 1.  **Login via Body:**
 
     -   Acesse `POST /api/v1/auth/login`.

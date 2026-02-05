@@ -18,7 +18,7 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/auth")
-@Tag(name = "Autenticação - V1 (depreciada)")
+@Tag(name = "Autenticação - V1(login JSON + JWT)")
 public class AuthControllerV1 {
 
     private final JwtService jwtService;
