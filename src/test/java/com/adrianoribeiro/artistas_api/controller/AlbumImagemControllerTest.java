@@ -49,7 +49,6 @@ class AlbumImagemControllerTest {
         when(albumImagemService.adicionarImagens(anyLong(), any(MultipartFile[].class)))
                 .thenReturn(nomesArquivos);
 
-        // Rota atualizada para /api/v1/albuns/{id}/imagens
         mockMvc.perform(multipart("/api/v1/albuns/{albumId}/imagens", 1L)
                         .file(file1))
                 .andExpect(status().isOk())
@@ -66,7 +65,8 @@ class AlbumImagemControllerTest {
 
         when(albumImagemService.listarImagens(1L)).thenReturn(imagens);
 
-        mockMvc.perform(get("/api/v1/albuns/{albumId}/capas", 1L))
+        // Corrigido: Removido /capas
+        mockMvc.perform(get("/api/v1/albuns/{albumId}", 1L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L))
@@ -78,7 +78,8 @@ class AlbumImagemControllerTest {
     void deveExcluirImagemComSucesso() throws Exception {
         doNothing().when(albumImagemService).excluirImagem(10L);
 
-        mockMvc.perform(delete("/api/v1/albuns/capas/{imagemId}", 10L))
+        // Corrigido: Removido /capas/
+        mockMvc.perform(delete("/api/v1/albuns/{imagemId}", 10L))
                 .andExpect(status().isNoContent());
 
         verify(albumImagemService, times(1)).excluirImagem(10L);
@@ -90,7 +91,8 @@ class AlbumImagemControllerTest {
         String urlFake = "http://localhost/minio/download-link";
         when(albumImagemService.download(10L)).thenReturn(urlFake);
 
-        mockMvc.perform(get("/api/v1/albuns/capas/{imagemId}/download", 10L))
+        // Corrigido: Removido /capas/
+        mockMvc.perform(get("/api/v1/albuns/{imagemId}/download", 10L))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.downloadUrl").value(urlFake));
     }
@@ -98,7 +100,6 @@ class AlbumImagemControllerTest {
     @Test
     @DisplayName("Deve retornar 400 ao tentar upload sem arquivos")
     void deveRetornarBadRequestQuandoNaoEnviarArquivos() throws Exception {
-        // MockMvc multipart exige pelo menos um parâmetro ou arquivo para não dar erro de construção
         mockMvc.perform(multipart("/api/v1/albuns/{albumId}/imagens", 1L))
                 .andExpect(status().isBadRequest());
     }

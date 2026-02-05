@@ -311,6 +311,23 @@ A **carga inicial (V2)** insere artistas (ex.: Serj Tankian, Mike Shinoda, Miche
 
 ---
 
+## Testes
+
+Os testes unitários e de integração podem ser executados diretamente dentro do container da API para garantir paridade com o ambiente de execução.
+
+### Rodando no Docker (Recomendado)
+
+Execute a suíte de testes via Docker Exec:
+
+```
+docker exec -it artistas-api ./mvnw test
+```
+Rodando Localmente
+Caso prefira rodar fora do container (requer Java 17 instalado):
+
+```
+./mvnw test
+```
 ## Documentação da API
 
 - **Swagger UI:** http://localhost:8080/swagger-ui.html  
