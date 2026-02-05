@@ -261,10 +261,19 @@ Base: `http://localhost:8080`. Todos os recursos abaixo exigem autenticação, e
 - **MinIO** (S3-compatível): bucket definido em `minio.bucket` (ex.: `albuns`), criado na subida da aplicação (`MinioBucketInitializer`).
 - **Upload:** multipart no endpoint de imagens; arquivo salvo no MinIO com nome único (UUID + nome original); na tabela `album_imagens` persiste-se o **nome do objeto** (campo `url`), não a URL pública.
 - **Acesso:** apenas **Presigned URLs** (GET), com TTL limitado (ex.: 30 min para visualização, 10 min para download com `response-content-disposition: attachment`). Nenhuma URL direta ao MinIO é exposta.
-- **Nginx:** em Docker, o cliente acessa o MinIO via `http://localhost/minio` (ou host do Nginx); as Presigned URLs são reescritas para esse host para não expor a porta 9000.
+- **Nginx:** em Docker, o cliente acessa o MinIO via `localhost/minio` (ou host do Nginx); as Presigned URLs são reescritas para esse host para não expor a porta 9000.
 - **Respostas:** listagem de imagens retorna `id` e `url` (Presigned); o endpoint de download retorna JSON `{ "downloadUrl": "..." }`.
 
 ---
+
+## Camada de Proxy com Nginx
+Para otimizar o fluxo de entrega de arquivos e garantir a segurança do storage, foi implementado o Nginx como Proxy Reverso.
+
+Abstração de Endereços: O Nginx centraliza o tráfego na porta 80, roteando as requisições com o prefixo /minio para o container interno do MinIO na porta 9000.
+
+Resolução de Presigned URLs: Resolve o problema comum de acesso a containers em redes Docker, permitindo que as URLs assinadas geradas pelo MinIO apontem para o host público `localhost/minio`, tornando-as acessíveis diretamente pelo navegador do usuário.
+
+Segurança: Isola os serviços internos, expondo apenas os caminhos necessários para o consumo das imagens e protegendo as portas administrativas dos serviços de storage.
 
 ## Banco de dados
 
